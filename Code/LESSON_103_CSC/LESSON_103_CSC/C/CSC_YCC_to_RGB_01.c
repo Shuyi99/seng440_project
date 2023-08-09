@@ -276,26 +276,32 @@ static void chrominance_array_upsample( void) {
   uint8_t left;
   uint8_t middle;
 
-  for( row=0; row<((IMAGE_ROW_SIZE>>1)-1); row+=1) {
-    for( col=0; col<((IMAGE_COL_SIZE>>1)-1); col+=1) { 
-      chrominance_upsample( Cb[row+0][col+0], Cb[row+0][col+1],
-                            Cb[row+1][col+0], Cb[row+1][col+1],
-                            &top, &left, &middle);
-      Cb_temp[(row<<1)+0][(col<<1)+0] = Cb[row+0][col+0];
-      Cb_temp[(row<<1)+0][(col<<1)+1] = top;
-      Cb_temp[(row<<1)+1][(col<<1)+0] = left;
-      Cb_temp[(row<<1)+1][(col<<1)+1] = middle;
-      //
-      chrominance_upsample( Cr[row+0][col+0], Cr[row+0][col+1],
-                            Cr[row+1][col+0], Cr[row+1][col+1],
-                            &top, &left, &middle);
-      Cr_temp[(row<<1)+0][(col<<1)+0] = Cr[row+0][col+0];
-      Cr_temp[(row<<1)+0][(col<<1)+1] = top;
-      Cr_temp[(row<<1)+1][(col<<1)+0] = left;
-      Cr_temp[(row<<1)+1][(col<<1)+1] = middle;
+ for (row = 0; row < (IMAGE_ROW_SIZE >> 1) - 1; row++) {
+    for (col = 0; col < (IMAGE_COL_SIZE >> 1) - 1; col++) {
+        // Use local variables to avoid multiple accesses to the same memory location
+        uint8_t Cb00 = Cb[row][col];
+        uint8_t Cb01 = Cb[row][col + 1];
+        uint8_t Cb10 = Cb[row + 1][col];
+        uint8_t Cb11 = Cb[row + 1][col + 1];
+
+        chrominance_upsample(Cb00, Cb01, Cb10, Cb11, &top, &left, &middle);
+        Cb_temp[row << 1][col << 1] = Cb00;
+        Cb_temp[row << 1][col << 1 + 1] = top;
+        Cb_temp[row << 1 + 1][col << 1] = left;
+        Cb_temp[row << 1 + 1][col << 1 + 1] = middle;
+
+        uint8_t Cr00 = Cr[row][col];
+        uint8_t Cr01 = Cr[row][col + 1];
+        uint8_t Cr10 = Cr[row + 1][col];
+        uint8_t Cr11 = Cr[row + 1][col + 1];
+
+        chrominance_upsample(Cr00, Cr01, Cr10, Cr11, &top, &left, &middle);
+        Cr_temp[row << 1][col << 1] = Cr00;
+        Cr_temp[row << 1][col << 1 + 1] = top;
+        Cr_temp[row << 1 + 1][col << 1] = left;
+        Cr_temp[row << 1 + 1][col << 1 + 1] = middle;
     }
   }
-
   col = (IMAGE_COL_SIZE>>1) - 1;
   for( row=0; row<((IMAGE_ROW_SIZE>>1)-1); row+=1) {
     chrominance_upsample( Cb[row+0][col], Cb[row+0][col],
