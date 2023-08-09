@@ -287,7 +287,7 @@ static void chrominance_array_upsample( void) {
         chrominance_upsample(Cb00, Cb01, Cb10, Cb11, &top, &left, &middle);
         Cb_temp[row << 1][col << 1] = Cb00;
         Cb_temp[row << 1][(col << 1) + 1] = top;
-        Cb_temp[row << 1 + 1][col << 1] = left;
+        Cb_temp[(row << 1) + 1][col << 1] = left;
         Cb_temp[(row << 1) + 1][(col << 1) + 1] = middle;
 
         uint8_t Cr00 = Cr[row][col];
@@ -297,7 +297,7 @@ static void chrominance_array_upsample( void) {
 
         chrominance_upsample(Cr00, Cr01, Cr10, Cr11, &top, &left, &middle);
         Cr_temp[row << 1][col << 1] = Cr00;
-        Cr_temp[row << 1][col << 1 + 1] = top;
+        Cr_temp[row << 1][(col << 1) + 1] = top;
         Cr_temp[(row << 1) + 1][col << 1] = left;
         Cr_temp[(row << 1) + 1][(col << 1) + 1] = middle;
     }
