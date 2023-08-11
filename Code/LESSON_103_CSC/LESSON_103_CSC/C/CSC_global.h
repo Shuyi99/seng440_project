@@ -1,5 +1,6 @@
 #include <stdint.h>
 
+
 #define K 8 // bitwidth
 #define UNITY (1 << K)
 #define IMAGE_ROW_SIZE 640

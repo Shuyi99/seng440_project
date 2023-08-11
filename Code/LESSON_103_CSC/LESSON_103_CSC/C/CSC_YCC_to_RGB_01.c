@@ -6,6 +6,8 @@
 #include <stdint.h>
 #include "CSC_global.h"
 #include <stdio.h>
+#include <arm_neon.h>
+
 
 // private data
 
@@ -199,40 +201,66 @@ static uint8_t saturation_int( int argument) {
 //   B[row+1][col+1] = saturation_int(B_pixel_11);
 // } // END of CSC_YCC_to_RGB_brute_force_int()
 
-static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
+// static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
 
-  int Y_offset = 16;
-  int Chroma_offset = 128;
+//   int Y_offset = 16;
+//   int Chroma_offset = 128;
 
-  // Upsample Cb and Cr into Cb_temp and Cr_temp
-  chrominance_array_upsample();
+//   // Upsample Cb and Cr into Cb_temp and Cr_temp
+//   chrominance_array_upsample();
 
-  // Pre-calculate common values for Y, Cb and Cr
-  int Y_values[2][2] = {
-    { (int)Y[row+0][col+0] - Y_offset, (int)Y[row+0][col+1] - Y_offset },
-    { (int)Y[row+1][col+0] - Y_offset, (int)Y[row+1][col+1] - Y_offset }
-  };
+//   // Pre-calculate common values for Y, Cb and Cr
+//   int Y_values[2][2] = {
+//     { (int)Y[row+0][col+0] - Y_offset, (int)Y[row+0][col+1] - Y_offset },
+//     { (int)Y[row+1][col+0] - Y_offset, (int)Y[row+1][col+1] - Y_offset }
+//   };
 
-  int Cb_values[2][2] = {
-    { (int)Cb_temp[row+0][col+0] - Chroma_offset, (int)Cb_temp[row+0][col+1] - Chroma_offset },
-    { (int)Cb_temp[row+1][col+0] - Chroma_offset, (int)Cb_temp[row+1][col+1] - Chroma_offset }
-  };
+//   int Cb_values[2][2] = {
+//     { (int)Cb_temp[row+0][col+0] - Chroma_offset, (int)Cb_temp[row+0][col+1] - Chroma_offset },
+//     { (int)Cb_temp[row+1][col+0] - Chroma_offset, (int)Cb_temp[row+1][col+1] - Chroma_offset }
+//   };
 
-  int Cr_values[2][2] = {
-    { (int)Cr_temp[row+0][col+0] - Chroma_offset, (int)Cr_temp[row+0][col+1] - Chroma_offset },
-    { (int)Cr_temp[row+1][col+0] - Chroma_offset, (int)Cr_temp[row+1][col+1] - Chroma_offset }
-  };
+//   int Cr_values[2][2] = {
+//     { (int)Cr_temp[row+0][col+0] - Chroma_offset, (int)Cr_temp[row+0][col+1] - Chroma_offset },
+//     { (int)Cr_temp[row+1][col+0] - Chroma_offset, (int)Cr_temp[row+1][col+1] - Chroma_offset }
+//   };
 
-  // Loop to simplify and eliminate redundancy
-  for (int i = 0; i < 2; ++i) {
-    for (int j = 0; j < 2; ++j) {
-      R[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D2 * Cr_values[i][j]) + (1 << (K-1))) >> K);
-      G[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] - D3 * Cr_values[i][j] - D4 * Cb_values[i][j]) + (1 << (K-1))) >> K);
-      B[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D5 * Cb_values[i][j]) + (1 << (K-1))) >> K);
-    }
-  }
+//   // Loop to simplify and eliminate redundancy
+//   for (int i = 0; i < 2; ++i) {
+//     for (int j = 0; j < 2; ++j) {
+//       R[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D2 * Cr_values[i][j]) + (1 << (K-1))) >> K);
+//       G[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] - D3 * Cr_values[i][j] - D4 * Cb_values[i][j]) + (1 << (K-1))) >> K);
+//       B[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D5 * Cb_values[i][j]) + (1 << (K-1))) >> K);
+//     }
+//   }
 
-} // END of CSC_YCC_to_RGB_brute_force_int()
+// } // END of CSC_YCC_to_RGB_brute_force_int()
+
+
+static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
+    int Y_offset = 16;
+    int Chroma_offset = 128;
+
+    chrominance_array_upsample();
+
+    int32x4_t Y_values = vsubq_n_s32(vld1q_s32(&Y[row][col]), Y_offset);
+    int32x4_t Cb_values = vsubq_n_s32(vld1q_s32(&Cb_temp[row][col]), Chroma_offset);
+    int32x4_t Cr_values = vsubq_n_s32(vld1q_s32(&Cr_temp[row][col]), Chroma_offset);
+
+    int32x4_t R_pixel = vaddq_s32(vmulq_n_s32(Y_values, D1), vmulq_n_s32(Cr_values, D2));
+    R_pixel = vrshrq_n_s32(R_pixel, K);
+
+    int32x4_t G_pixel = vmlaq_n_s32(vmlsq_n_s32(vmulq_n_s32(Y_values, D1), Cr_values, D3), Cb_values, D4);
+    G_pixel = vrshrq_n_s32(G_pixel, K);
+
+    int32x4_t B_pixel = vaddq_s32(vmulq_n_s32(Y_values, D1), vmulq_n_s32(Cb_values, D5));
+    B_pixel = vrshrq_n_s32(B_pixel, K);
+
+    vst1q_s32(&R[row][col], R_pixel);
+    vst1q_s32(&G[row][col], G_pixel);
+    vst1q_s32(&B[row][col], B_pixel);
+}
+
 
 
 
