@@ -116,19 +116,6 @@ static uint8_t saturation_int( int argument) {
   }
 } // END of saturation_int()
 
-// // =======
-// static uint8_t saturate_to_uint8(int value) {
-//     if (value < 0) {
-//         return 0;
-//     }
-//     if (value > 255) {
-//         return 255;
-//     }
-//     return (uint8_t)value;
-// }
-
-
-
 // =======
 static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
 //
@@ -172,85 +159,6 @@ static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
   Cr_pixel_01 = Cr_pixel_01 - 128;
   Cr_pixel_10 = Cr_pixel_10 - 128;
   Cr_pixel_11 = Cr_pixel_11 - 128;
-
-  // R_pixel_00 = D1 * Y_pixel_00 + D2 * Cr_pixel_00;
-  // R_pixel_00 += (1 << (K-1)); // rounding
-  // R_pixel_00 = R_pixel_00 >> K;
-  // R[row+0][col+0] = saturation_int(R_pixel_00);
-
-  // R_pixel_01 = D1 * Y_pixel_01 + D2 * Cr_pixel_01;
-  // R_pixel_01 += (1 << (K-1)); // rounding
-  // R_pixel_01 = R_pixel_01 >> K;
-  // R[row+0][col+0] = saturation_int(R_pixel_00);
-
-  // R_pixel_10 = D1 * Y_pixel_10 + D2 * Cr_pixel_10;
-  // R_pixel_10 += (1 << (K-1)); // rounding
-  // R_pixel_10 = R_pixel_10 >> K;
-  // R[row+0][col+0] = saturation_int(R_pixel_00);
-
-  // R_pixel_11 = D1 * Y_pixel_11 + D2 * Cr_pixel_11;
-  // R_pixel_11 += (1 << (K-1)); // rounding
-  // R_pixel_11 = R_pixel_11 >> K;
-  // R[row+0][col+0] = saturation_int(R_pixel_00);
-
-  // R[row+0][col+0] = (uint8_t)R_pixel_00;
-  // R[row+0][col+1] = (uint8_t)R_pixel_01;
-  // R[row+1][col+0] = (uint8_t)R_pixel_10;
-  // R[row+1][col+1] = (uint8_t)R_pixel_11;
-
-  // G_pixel_00 = D1 * Y_pixel_00 - D3 * Cr_pixel_00
-  //                              - D4 * Cb_pixel_00;
-  // G_pixel_00 += (1 << (K-1)); // rounding
-  // G_pixel_00 = G_pixel_00 >> K;
-  // G[row+0][col+0] = saturation_int(G_pixel_00);
-
-  // G_pixel_01 = D1 * Y_pixel_01 - D3 * Cr_pixel_01
-  //                              - D4 * Cb_pixel_01;
-  // G_pixel_01 += (1 << (K-1)); // rounding
-  // G_pixel_01 = G_pixel_01 >> K;
-  // G[row+0][col+0] = saturation_int(G_pixel_00);
-
-  // G_pixel_10 = D1 * Y_pixel_10 - D3 * Cr_pixel_10
-  //                              - D4 * Cb_pixel_10;
-  // G_pixel_10 += (1 << (K-1)); // rounding
-  // G_pixel_10 = G_pixel_10 >> K;
-  // G[row+0][col+0] = saturation_int(G_pixel_00);
-
-  // G_pixel_11 = D1 * Y_pixel_11 - D3 * Cr_pixel_11
-  //                              - D4 * Cb_pixel_11;
-  // G_pixel_11 += (1 << (K-1)); // rounding
-  // G_pixel_11 = G_pixel_11 >> K;
-  // G[row+0][col+0] = saturation_int(G_pixel_00);
-
-  // G[row+0][col+0] = (uint8_t)G_pixel_00;
-  // G[row+0][col+1] = (uint8_t)G_pixel_01;
-  // G[row+1][col+0] = (uint8_t)G_pixel_10;
-  // G[row+1][col+1] = (uint8_t)G_pixel_11;
-
-  // B_pixel_00 = D1 * Y_pixel_00 + D5 * Cb_pixel_00;
-  // B_pixel_00 += (1 << (K-1)); // rounding
-  // B_pixel_00 = B_pixel_00 >> K;
-  // B[row+0][col+0] = saturation_int(B_pixel_00);
-
-  // B_pixel_01 = D1 * Y_pixel_01 + D5 * Cb_pixel_01;
-  // B_pixel_01 += (1 << (K-1)); // rounding
-  // B_pixel_01 = B_pixel_01 >> K;
-  // B[row+0][col+0] = saturation_int(B_pixel_00);
-
-  // B_pixel_10 = D1 * Y_pixel_10 + D5 * Cb_pixel_10;
-  // B_pixel_10 += (1 << (K-1)); // rounding
-  // B_pixel_10 = B_pixel_10 >> K;
-  // B[row+0][col+0] = saturation_int(B_pixel_00);
-
-  // B_pixel_11 = D1 * Y_pixel_11 + D5 * Cb_pixel_11;
-  // B_pixel_11 += (1 << (K-1)); // rounding
-  // B_pixel_11 = B_pixel_11 >> K;
-  // B[row+0][col+0] = saturation_int(B_pixel_00);
-
-  // B[row+0][col+0] = (uint8_t)B_pixel_00;
-  // B[row+0][col+1] = (uint8_t)B_pixel_01;
-  // B[row+1][col+0] = (uint8_t)B_pixel_10;
-  // B[row+1][col+1] = (uint8_t)B_pixel_11;
 
   R_pixel_00 = ((D1 * Y_pixel_00 + D2 * Cr_pixel_00) + (1 << (K-1))) >> K;
   R[row+0][col+0] = saturation_int(R_pixel_00);
@@ -339,32 +247,26 @@ static void chrominance_array_upsample( void) {
   uint8_t left;
   uint8_t middle;
 
- for (row = 0; row < (IMAGE_ROW_SIZE >> 1) - 1; row++) {
-    for (col = 0; col < (IMAGE_COL_SIZE >> 1) - 1; col++) {
-        // Use local variables to avoid multiple accesses to the same memory location
-        uint8_t Cb00 = Cb[row][col];
-        uint8_t Cb01 = Cb[row][col + 1];
-        uint8_t Cb10 = Cb[row + 1][col];
-        uint8_t Cb11 = Cb[row + 1][col + 1];
-
-        chrominance_upsample(Cb00, Cb01, Cb10, Cb11, &top, &left, &middle);
-        Cb_temp[row << 1][col << 1] = Cb00;
-        Cb_temp[row << 1][(col << 1) + 1] = top;
-        Cb_temp[(row << 1) + 1][col << 1] = left;
-        Cb_temp[(row << 1) + 1][(col << 1) + 1] = middle;
-
-        uint8_t Cr00 = Cr[row][col];
-        uint8_t Cr01 = Cr[row][col + 1];
-        uint8_t Cr10 = Cr[row + 1][col];
-        uint8_t Cr11 = Cr[row + 1][col + 1];
-
-        chrominance_upsample(Cr00, Cr01, Cr10, Cr11, &top, &left, &middle);
-        Cr_temp[row << 1][col << 1] = Cr00;
-        Cr_temp[row << 1][(col << 1) + 1] = top;
-        Cr_temp[(row << 1) + 1][col << 1] = left;
-        Cr_temp[(row << 1) + 1][(col << 1) + 1] = middle;
+  for( row=0; row<((IMAGE_ROW_SIZE>>1)-1); row+=1) {
+    for( col=0; col<((IMAGE_COL_SIZE>>1)-1); col+=1) { 
+      chrominance_upsample( Cb[row+0][col+0], Cb[row+0][col+1],
+                            Cb[row+1][col+0], Cb[row+1][col+1],
+                            &top, &left, &middle);
+      Cb_temp[(row<<1)+0][(col<<1)+0] = Cb[row+0][col+0];
+      Cb_temp[(row<<1)+0][(col<<1)+1] = top;
+      Cb_temp[(row<<1)+1][(col<<1)+0] = left;
+      Cb_temp[(row<<1)+1][(col<<1)+1] = middle;
+      //
+      chrominance_upsample( Cr[row+0][col+0], Cr[row+0][col+1],
+                            Cr[row+1][col+0], Cr[row+1][col+1],
+                            &top, &left, &middle);
+      Cr_temp[(row<<1)+0][(col<<1)+0] = Cr[row+0][col+0];
+      Cr_temp[(row<<1)+0][(col<<1)+1] = top;
+      Cr_temp[(row<<1)+1][(col<<1)+0] = left;
+      Cr_temp[(row<<1)+1][(col<<1)+1] = middle;
     }
   }
+
   col = (IMAGE_COL_SIZE>>1) - 1;
   for( row=0; row<((IMAGE_ROW_SIZE>>1)-1); row+=1) {
     chrominance_upsample( Cb[row+0][col], Cb[row+0][col],
@@ -416,7 +318,6 @@ static void chrominance_array_upsample( void) {
   Cr_temp[(row<<1)+1][(col<<1)+1] = Cr[row][col];
 
 } // END of chrominance_array_upsample()
-
 // =======
 void CSC_YCC_to_RGB( void) {
   int row, col; // indices for row and column
