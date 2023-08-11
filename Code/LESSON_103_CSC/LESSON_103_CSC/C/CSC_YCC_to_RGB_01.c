@@ -5,13 +5,14 @@
 //#include <stdio.h>
 #include <stdint.h>
 #include "CSC_global.h"
+#include <stdio.h>
 
 // private data
 
 // private prototypes
 // =======
-static uint8_t saturation_float( float argument);
-static void CSC_YCC_to_RGB_brute_force_float( int row, int col);
+// static uint8_t saturation_float( float argument);
+// static void CSC_YCC_to_RGB_brute_force_float( int row, int col);
 
 // =======
 static uint8_t saturation_int( int argument);
@@ -115,6 +116,19 @@ static uint8_t saturation_int( int argument) {
   }
 } // END of saturation_int()
 
+// // =======
+// static uint8_t saturate_to_uint8(int value) {
+//     if (value < 0) {
+//         return 0;
+//     }
+//     if (value > 255) {
+//         return 255;
+//     }
+//     return (uint8_t)value;
+// }
+
+
+
 // =======
 static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
 //
@@ -159,73 +173,122 @@ static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
   Cr_pixel_10 = Cr_pixel_10 - 128;
   Cr_pixel_11 = Cr_pixel_11 - 128;
 
-  R_pixel_00 = D1 * Y_pixel_00 + D2 * Cr_pixel_00;
-  R_pixel_00 += (1 << (K-1)); // rounding
-  R_pixel_00 = R_pixel_00 >> K;
+  // R_pixel_00 = D1 * Y_pixel_00 + D2 * Cr_pixel_00;
+  // R_pixel_00 += (1 << (K-1)); // rounding
+  // R_pixel_00 = R_pixel_00 >> K;
+  // R[row+0][col+0] = saturation_int(R_pixel_00);
 
-  R_pixel_01 = D1 * Y_pixel_01 + D2 * Cr_pixel_01;
-  R_pixel_01 += (1 << (K-1)); // rounding
-  R_pixel_01 = R_pixel_01 >> K;
+  // R_pixel_01 = D1 * Y_pixel_01 + D2 * Cr_pixel_01;
+  // R_pixel_01 += (1 << (K-1)); // rounding
+  // R_pixel_01 = R_pixel_01 >> K;
+  // R[row+0][col+0] = saturation_int(R_pixel_00);
 
-  R_pixel_10 = D1 * Y_pixel_10 + D2 * Cr_pixel_10;
-  R_pixel_10 += (1 << (K-1)); // rounding
-  R_pixel_10 = R_pixel_10 >> K;
+  // R_pixel_10 = D1 * Y_pixel_10 + D2 * Cr_pixel_10;
+  // R_pixel_10 += (1 << (K-1)); // rounding
+  // R_pixel_10 = R_pixel_10 >> K;
+  // R[row+0][col+0] = saturation_int(R_pixel_00);
 
-  R_pixel_11 = D1 * Y_pixel_11 + D2 * Cr_pixel_11;
-  R_pixel_11 += (1 << (K-1)); // rounding
-  R_pixel_11 = R_pixel_11 >> K;
+  // R_pixel_11 = D1 * Y_pixel_11 + D2 * Cr_pixel_11;
+  // R_pixel_11 += (1 << (K-1)); // rounding
+  // R_pixel_11 = R_pixel_11 >> K;
+  // R[row+0][col+0] = saturation_int(R_pixel_00);
 
-  R[row+0][col+0] = (uint8_t)R_pixel_00;
-  R[row+0][col+1] = (uint8_t)R_pixel_01;
-  R[row+1][col+0] = (uint8_t)R_pixel_10;
-  R[row+1][col+1] = (uint8_t)R_pixel_11;
+  // R[row+0][col+0] = (uint8_t)R_pixel_00;
+  // R[row+0][col+1] = (uint8_t)R_pixel_01;
+  // R[row+1][col+0] = (uint8_t)R_pixel_10;
+  // R[row+1][col+1] = (uint8_t)R_pixel_11;
 
-  G_pixel_00 = D1 * Y_pixel_00 - D3 * Cr_pixel_00
-                               - D4 * Cb_pixel_00;
-  G_pixel_00 += (1 << (K-1)); // rounding
-  G_pixel_00 = G_pixel_00 >> K;
+  // G_pixel_00 = D1 * Y_pixel_00 - D3 * Cr_pixel_00
+  //                              - D4 * Cb_pixel_00;
+  // G_pixel_00 += (1 << (K-1)); // rounding
+  // G_pixel_00 = G_pixel_00 >> K;
+  // G[row+0][col+0] = saturation_int(G_pixel_00);
 
-  G_pixel_01 = D1 * Y_pixel_01 - D3 * Cr_pixel_01
-                               - D4 * Cb_pixel_01;
-  G_pixel_01 += (1 << (K-1)); // rounding
-  G_pixel_01 = G_pixel_01 >> K;
+  // G_pixel_01 = D1 * Y_pixel_01 - D3 * Cr_pixel_01
+  //                              - D4 * Cb_pixel_01;
+  // G_pixel_01 += (1 << (K-1)); // rounding
+  // G_pixel_01 = G_pixel_01 >> K;
+  // G[row+0][col+0] = saturation_int(G_pixel_00);
 
-  G_pixel_10 = D1 * Y_pixel_10 - D3 * Cr_pixel_10
-                               - D4 * Cb_pixel_10;
-  G_pixel_10 += (1 << (K-1)); // rounding
-  G_pixel_10 = G_pixel_10 >> K;
+  // G_pixel_10 = D1 * Y_pixel_10 - D3 * Cr_pixel_10
+  //                              - D4 * Cb_pixel_10;
+  // G_pixel_10 += (1 << (K-1)); // rounding
+  // G_pixel_10 = G_pixel_10 >> K;
+  // G[row+0][col+0] = saturation_int(G_pixel_00);
 
-  G_pixel_11 = D1 * Y_pixel_11 - D3 * Cr_pixel_11
-                               - D4 * Cb_pixel_11;
-  G_pixel_11 += (1 << (K-1)); // rounding
-  G_pixel_11 = G_pixel_11 >> K;
+  // G_pixel_11 = D1 * Y_pixel_11 - D3 * Cr_pixel_11
+  //                              - D4 * Cb_pixel_11;
+  // G_pixel_11 += (1 << (K-1)); // rounding
+  // G_pixel_11 = G_pixel_11 >> K;
+  // G[row+0][col+0] = saturation_int(G_pixel_00);
 
-  G[row+0][col+0] = (uint8_t)G_pixel_00;
-  G[row+0][col+1] = (uint8_t)G_pixel_01;
-  G[row+1][col+0] = (uint8_t)G_pixel_10;
-  G[row+1][col+1] = (uint8_t)G_pixel_11;
+  // G[row+0][col+0] = (uint8_t)G_pixel_00;
+  // G[row+0][col+1] = (uint8_t)G_pixel_01;
+  // G[row+1][col+0] = (uint8_t)G_pixel_10;
+  // G[row+1][col+1] = (uint8_t)G_pixel_11;
 
-  B_pixel_00 = D1 * Y_pixel_00 + D5 * Cb_pixel_00;
-  B_pixel_00 += (1 << (K-1)); // rounding
-  B_pixel_00 = B_pixel_00 >> K;
+  // B_pixel_00 = D1 * Y_pixel_00 + D5 * Cb_pixel_00;
+  // B_pixel_00 += (1 << (K-1)); // rounding
+  // B_pixel_00 = B_pixel_00 >> K;
+  // B[row+0][col+0] = saturation_int(B_pixel_00);
 
-  B_pixel_01 = D1 * Y_pixel_01 + D5 * Cb_pixel_01;
-  B_pixel_01 += (1 << (K-1)); // rounding
-  B_pixel_01 = B_pixel_01 >> K;
+  // B_pixel_01 = D1 * Y_pixel_01 + D5 * Cb_pixel_01;
+  // B_pixel_01 += (1 << (K-1)); // rounding
+  // B_pixel_01 = B_pixel_01 >> K;
+  // B[row+0][col+0] = saturation_int(B_pixel_00);
 
-  B_pixel_10 = D1 * Y_pixel_10 + D5 * Cb_pixel_10;
-  B_pixel_10 += (1 << (K-1)); // rounding
-  B_pixel_10 = B_pixel_10 >> K;
+  // B_pixel_10 = D1 * Y_pixel_10 + D5 * Cb_pixel_10;
+  // B_pixel_10 += (1 << (K-1)); // rounding
+  // B_pixel_10 = B_pixel_10 >> K;
+  // B[row+0][col+0] = saturation_int(B_pixel_00);
 
-  B_pixel_11 = D1 * Y_pixel_11 + D5 * Cb_pixel_11;
-  B_pixel_11 += (1 << (K-1)); // rounding
-  B_pixel_11 = B_pixel_11 >> K;
+  // B_pixel_11 = D1 * Y_pixel_11 + D5 * Cb_pixel_11;
+  // B_pixel_11 += (1 << (K-1)); // rounding
+  // B_pixel_11 = B_pixel_11 >> K;
+  // B[row+0][col+0] = saturation_int(B_pixel_00);
 
-  B[row+0][col+0] = (uint8_t)B_pixel_00;
-  B[row+0][col+1] = (uint8_t)B_pixel_01;
-  B[row+1][col+0] = (uint8_t)B_pixel_10;
-  B[row+1][col+1] = (uint8_t)B_pixel_11;
+  // B[row+0][col+0] = (uint8_t)B_pixel_00;
+  // B[row+0][col+1] = (uint8_t)B_pixel_01;
+  // B[row+1][col+0] = (uint8_t)B_pixel_10;
+  // B[row+1][col+1] = (uint8_t)B_pixel_11;
 
+  R_pixel_00 = ((D1 * Y_pixel_00 + D2 * Cr_pixel_00) + (1 << (K-1))) >> K;
+  R[row+0][col+0] = saturation_int(R_pixel_00);
+
+  R_pixel_01 = ((D1 * Y_pixel_01 + D2 * Cr_pixel_01) + (1 << (K-1))) >> K;
+  R[row+0][col+1] = saturation_int(R_pixel_01);
+
+  R_pixel_10 = ((D1 * Y_pixel_10 + D2 * Cr_pixel_10) + (1 << (K-1))) >> K;
+  R[row+1][col+0] = saturation_int(R_pixel_10);
+
+  R_pixel_11 = ((D1 * Y_pixel_11 + D2 * Cr_pixel_11) + (1 << (K-1))) >> K;
+  R[row+1][col+1] = saturation_int(R_pixel_11);
+
+  // Conversion for G pixels
+  G_pixel_00 = ((D1 * Y_pixel_00 - D3 * Cr_pixel_00 - D4 * Cb_pixel_00) + (1 << (K-1))) >> K;
+  G[row+0][col+0] = saturation_int(G_pixel_00);
+
+  G_pixel_01 = ((D1 * Y_pixel_01 - D3 * Cr_pixel_01 - D4 * Cb_pixel_01) + (1 << (K-1))) >> K;
+  G[row+0][col+1] = saturation_int(G_pixel_01);
+
+  G_pixel_10 = ((D1 * Y_pixel_10 - D3 * Cr_pixel_10 - D4 * Cb_pixel_10) + (1 << (K-1))) >> K;
+  G[row+1][col+0] = saturation_int(G_pixel_10);
+
+  G_pixel_11 = ((D1 * Y_pixel_11 - D3 * Cr_pixel_11 - D4 * Cb_pixel_11) + (1 << (K-1))) >> K;
+  G[row+1][col+1] = saturation_int(G_pixel_11);
+
+  // Conversion for B pixels
+  B_pixel_00 = ((D1 * Y_pixel_00 + D5 * Cb_pixel_00) + (1 << (K-1))) >> K;
+  B[row+0][col+0] = saturation_int(B_pixel_00);
+
+  B_pixel_01 = ((D1 * Y_pixel_01 + D5 * Cb_pixel_01) + (1 << (K-1))) >> K;
+  B[row+0][col+1] = saturation_int(B_pixel_01);
+
+  B_pixel_10 = ((D1 * Y_pixel_10 + D5 * Cb_pixel_10) + (1 << (K-1))) >> K;
+  B[row+1][col+0] = saturation_int(B_pixel_10);
+
+  B_pixel_11 = ((D1 * Y_pixel_11 + D5 * Cb_pixel_11) + (1 << (K-1))) >> K;
+  B[row+1][col+1] = saturation_int(B_pixel_11);
 } // END of CSC_YCC_to_RGB_brute_force_int()
 
 // =======
@@ -366,9 +429,11 @@ void CSC_YCC_to_RGB( void) {
           break;
         case 1:
           CSC_YCC_to_RGB_brute_force_float( row, col);
+          
           break;
         case 2:
           CSC_YCC_to_RGB_brute_force_int( row, col);
+          //printf( "here");
           break;
         default:
           break;
