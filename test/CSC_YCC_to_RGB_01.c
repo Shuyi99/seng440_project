@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "CSC_global.h"
 #include <stdio.h>
+#include <arm_neon.h>
 
 // private data
 
@@ -116,124 +117,81 @@ static uint8_t saturation_int( int argument) {
   }
 } // END of saturation_int()
 
-// =======
-// static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
-// //
-//   int R_pixel_00, R_pixel_01, R_pixel_10, R_pixel_11;
-//   int G_pixel_00, G_pixel_01, G_pixel_10, G_pixel_11;
-//   int B_pixel_00, B_pixel_01, B_pixel_10, B_pixel_11;
 
-//   int  Y_pixel_00,  Y_pixel_01,  Y_pixel_10,  Y_pixel_11;
-//   int Cb_pixel_00, Cb_pixel_01, Cb_pixel_10, Cb_pixel_11;
-//   int Cr_pixel_00, Cr_pixel_01, Cr_pixel_10, Cr_pixel_11;
+// static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
+
+//   int Y_offset = 16;
+//   int Chroma_offset = 128;
 
 //   // Upsample Cb and Cr into Cb_temp and Cr_temp
 //   chrominance_array_upsample();
 
-//   Y_pixel_00 = (int)Y[row+0][col+0];
-//   Y_pixel_01 = (int)Y[row+0][col+1];
-//   Y_pixel_10 = (int)Y[row+1][col+0];
-//   Y_pixel_11 = (int)Y[row+1][col+1];
+//   // Pre-calculate common values for Y, Cb and Cr
+//   int Y_values[2][2] = {
+//     { (int)Y[row+0][col+0] - Y_offset, (int)Y[row+0][col+1] - Y_offset },
+//     { (int)Y[row+1][col+0] - Y_offset, (int)Y[row+1][col+1] - Y_offset }
+//   };
 
-//   Cb_pixel_00 = (int)Cb_temp[row+0][col+0];
-//   Cb_pixel_01 = (int)Cb_temp[row+0][col+1];
-//   Cb_pixel_10 = (int)Cb_temp[row+1][col+0];
-//   Cb_pixel_11 = (int)Cb_temp[row+1][col+1];
+//   int Cb_values[2][2] = {
+//     { (int)Cb_temp[row+0][col+0] - Chroma_offset, (int)Cb_temp[row+0][col+1] - Chroma_offset },
+//     { (int)Cb_temp[row+1][col+0] - Chroma_offset, (int)Cb_temp[row+1][col+1] - Chroma_offset }
+//   };
 
-//   Cr_pixel_00 = (int)Cr_temp[row+0][col+0];
-//   Cr_pixel_01 = (int)Cr_temp[row+0][col+1];
-//   Cr_pixel_10 = (int)Cr_temp[row+1][col+0];
-//   Cr_pixel_11 = (int)Cr_temp[row+1][col+1];
+//   int Cr_values[2][2] = {
+//     { (int)Cr_temp[row+0][col+0] - Chroma_offset, (int)Cr_temp[row+0][col+1] - Chroma_offset },
+//     { (int)Cr_temp[row+1][col+0] - Chroma_offset, (int)Cr_temp[row+1][col+1] - Chroma_offset }
+//   };
 
-//   Y_pixel_00 = Y_pixel_00 - 16;
-//   Y_pixel_01 = Y_pixel_01 - 16;
-//   Y_pixel_10 = Y_pixel_10 - 16;
-//   Y_pixel_11 = Y_pixel_11 - 16;
+//   // Loop to simplify and eliminate redundancy
+//   for (int i = 0; i < 2; ++i) {
+//     for (int j = 0; j < 2; ++j) {
+//       R[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D2 * Cr_values[i][j]) + (1 << (K-1))) >> K);
+//       G[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] - D3 * Cr_values[i][j] - D4 * Cb_values[i][j]) + (1 << (K-1))) >> K);
+//       B[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D5 * Cb_values[i][j]) + (1 << (K-1))) >> K);
+//     }
+//   }
 
-//   Cb_pixel_00 = Cb_pixel_00 - 128;
-//   Cb_pixel_01 = Cb_pixel_01 - 128;
-//   Cb_pixel_10 = Cb_pixel_10 - 128;
-//   Cb_pixel_11 = Cb_pixel_11 - 128;
-
-//   Cr_pixel_00 = Cr_pixel_00 - 128;
-//   Cr_pixel_01 = Cr_pixel_01 - 128;
-//   Cr_pixel_10 = Cr_pixel_10 - 128;
-//   Cr_pixel_11 = Cr_pixel_11 - 128;
-
-//   R_pixel_00 = ((D1 * Y_pixel_00 + D2 * Cr_pixel_00) + (1 << (K-1))) >> K;
-//   R[row+0][col+0] = saturation_int(R_pixel_00);
-
-//   R_pixel_01 = ((D1 * Y_pixel_01 + D2 * Cr_pixel_01) + (1 << (K-1))) >> K;
-//   R[row+0][col+1] = saturation_int(R_pixel_01);
-
-//   R_pixel_10 = ((D1 * Y_pixel_10 + D2 * Cr_pixel_10) + (1 << (K-1))) >> K;
-//   R[row+1][col+0] = saturation_int(R_pixel_10);
-
-//   R_pixel_11 = ((D1 * Y_pixel_11 + D2 * Cr_pixel_11) + (1 << (K-1))) >> K;
-//   R[row+1][col+1] = saturation_int(R_pixel_11);
-
-//   // Conversion for G pixels
-//   G_pixel_00 = ((D1 * Y_pixel_00 - D3 * Cr_pixel_00 - D4 * Cb_pixel_00) + (1 << (K-1))) >> K;
-//   G[row+0][col+0] = saturation_int(G_pixel_00);
-
-//   G_pixel_01 = ((D1 * Y_pixel_01 - D3 * Cr_pixel_01 - D4 * Cb_pixel_01) + (1 << (K-1))) >> K;
-//   G[row+0][col+1] = saturation_int(G_pixel_01);
-
-//   G_pixel_10 = ((D1 * Y_pixel_10 - D3 * Cr_pixel_10 - D4 * Cb_pixel_10) + (1 << (K-1))) >> K;
-//   G[row+1][col+0] = saturation_int(G_pixel_10);
-
-//   G_pixel_11 = ((D1 * Y_pixel_11 - D3 * Cr_pixel_11 - D4 * Cb_pixel_11) + (1 << (K-1))) >> K;
-//   G[row+1][col+1] = saturation_int(G_pixel_11);
-
-//   // Conversion for B pixels
-//   B_pixel_00 = ((D1 * Y_pixel_00 + D5 * Cb_pixel_00) + (1 << (K-1))) >> K;
-//   B[row+0][col+0] = saturation_int(B_pixel_00);
-
-//   B_pixel_01 = ((D1 * Y_pixel_01 + D5 * Cb_pixel_01) + (1 << (K-1))) >> K;
-//   B[row+0][col+1] = saturation_int(B_pixel_01);
-
-//   B_pixel_10 = ((D1 * Y_pixel_10 + D5 * Cb_pixel_10) + (1 << (K-1))) >> K;
-//   B[row+1][col+0] = saturation_int(B_pixel_10);
-
-//   B_pixel_11 = ((D1 * Y_pixel_11 + D5 * Cb_pixel_11) + (1 << (K-1))) >> K;
-//   B[row+1][col+1] = saturation_int(B_pixel_11);
 // } // END of CSC_YCC_to_RGB_brute_force_int()
 
-static void CSC_YCC_to_RGB_brute_force_int( int row, int col) {
 
-  int Y_offset = 16;
-  int Chroma_offset = 128;
+static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
+    // Constants for offsets and coefficients
 
-  // Upsample Cb and Cr into Cb_temp and Cr_temp
-  chrominance_array_upsample();
+    int16x8_t Y_offset_vec = vdupq_n_s16(16);
+    int16x8_t Chroma_offset_vec = vdupq_n_s16(120);
+    int16x8_t D1_vec = vdupq_n_s16(D1);
+    int16x8_t D2_vec = vdupq_n_s16(D2);
+    int16x8_t D3_vec = vdupq_n_s16(D3);
+    int16x8_t D4_vec = vdupq_n_s16(D4);
+    int16x8_t D5_vec = vdupq_n_s16(D5);
+    int16x8_t shift_value_vec = vdupq_n_s16(1 << (K - 1));
 
-  // Pre-calculate common values for Y, Cb and Cr
-  int Y_values[2][2] = {
-    { (int)Y[row+0][col+0] - Y_offset, (int)Y[row+0][col+1] - Y_offset },
-    { (int)Y[row+1][col+0] - Y_offset, (int)Y[row+1][col+1] - Y_offset }
-  };
+    // Load 8-bit data into NEON registers and convert to 16-bit
+    int16x8_t y_values = vmovl_u8(vld1_u8(&Y[row][col]));
+    int16x8_t cb_values = vmovl_u8(vld1_u8(&Cb_temp[row][col]));
+    int16x8_t cr_values = vmovl_u8(vld1_u8(&Cr_temp[row][col]));
 
-  int Cb_values[2][2] = {
-    { (int)Cb_temp[row+0][col+0] - Chroma_offset, (int)Cb_temp[row+0][col+1] - Chroma_offset },
-    { (int)Cb_temp[row+1][col+0] - Chroma_offset, (int)Cb_temp[row+1][col+1] - Chroma_offset }
-  };
+    // Adjust Y, Cb, Cr values with the offsets
+    y_values = vsubq_s16(y_values, Y_offset_vec);
+    cb_values = vsubq_s16(cb_values, Chroma_offset_vec);  // Cb and Cr are subtracted by 128
+    cr_values = vsubq_s16(cr_values, Chroma_offset_vec);
 
-  int Cr_values[2][2] = {
-    { (int)Cr_temp[row+0][col+0] - Chroma_offset, (int)Cr_temp[row+0][col+1] - Chroma_offset },
-    { (int)Cr_temp[row+1][col+0] - Chroma_offset, (int)Cr_temp[row+1][col+1] - Chroma_offset }
-  };
+    // Perform YCC to RGB conversion for R, G, B channels using NEON intrinsics
+    int16x8_t r_values = vaddq_s16(vmulq_s16(y_values, D1_vec), vmulq_s16(cr_values, D2_vec));
+    int16x8_t g_values = vsubq_s16(vsubq_s16(vmulq_s16(y_values, D1_vec), vmulq_s16(cr_values, D3_vec)), 
+                                  vmulq_s16(cb_values, D4_vec));
+    int16x8_t b_values = vaddq_s16(vmulq_s16(y_values, D1_vec), vmulq_s16(cb_values, D5_vec));
 
-  // Loop to simplify and eliminate redundancy
-  for (int i = 0; i < 2; ++i) {
-    for (int j = 0; j < 2; ++j) {
-      R[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D2 * Cr_values[i][j]) + (1 << (K-1))) >> K);
-      G[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] - D3 * Cr_values[i][j] - D4 * Cb_values[i][j]) + (1 << (K-1))) >> K);
-      B[row+i][col+j] = saturation_int(((D1 * Y_values[i][j] + D5 * Cb_values[i][j]) + (1 << (K-1))) >> K);
-    }
-  }
+    // Add the shift value and right shift by K bits to finalize fixed-point arithmetic
+    r_values = vshrq_n_s16(vaddq_s16(r_values, shift_value_vec), K);
+    g_values = vshrq_n_s16(vaddq_s16(g_values, shift_value_vec), K);
+    b_values = vshrq_n_s16(vaddq_s16(b_values, shift_value_vec), K);
 
-} // END of CSC_YCC_to_RGB_brute_force_int()
-
+    // Convert 16-bit results back to 8-bit and store them
+    vst1_u8(&R[row][col], vmovn_u16(vreinterpretq_u16_s16(r_values)));
+    vst1_u8(&G[row][col], vmovn_u16(vreinterpretq_u16_s16(g_values)));
+    vst1_u8(&B[row][col], vmovn_u16(vreinterpretq_u16_s16(b_values)));
+}
 
 
 // =======
