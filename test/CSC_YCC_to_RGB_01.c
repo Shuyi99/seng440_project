@@ -153,23 +153,35 @@ static uint8_t saturation_int( int argument) {
 
 // } // END of CSC_YCC_to_RGB_brute_force_int()
 
-
+int16x8_t bilinear_upsample_neon(int row, int col, uint8_t chroma[IMAGE_ROW_SIZE][IMAGE_COL_SIZE]);
 static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
     // Constants for offsets and coefficients
+    //   // Upsample Cb and Cr into Cb_temp and Cr_temp
+    //chrominance_array_upsample();
 
     int16x8_t Y_offset_vec = vdupq_n_s16(16);
-    int16x8_t Chroma_offset_vec = vdupq_n_s16(120);
+    int16x8_t Chroma_offset_vec = vdupq_n_s16(128);
     int16x8_t D1_vec = vdupq_n_s16(D1);
     int16x8_t D2_vec = vdupq_n_s16(D2);
     int16x8_t D3_vec = vdupq_n_s16(D3);
     int16x8_t D4_vec = vdupq_n_s16(D4);
     int16x8_t D5_vec = vdupq_n_s16(D5);
     int16x8_t shift_value_vec = vdupq_n_s16(1 << (K - 1));
+    int16x8_t min_val = vdupq_n_s16(0);
+    int16x8_t max_val = vdupq_n_s16(255);
 
     // Load 8-bit data into NEON registers and convert to 16-bit
+    // int16x8_t y_values = vmovl_u8(vld1_u8(&Y[row][col]));
+    // int16x8_t cb_values = vmovl_u8(vld1_u8(&Cb_temp[row][col]));
+    // int16x8_t cr_values = vmovl_u8(vld1_u8(&Cr_temp[row][col]));
+        // Load 8-bit data into NEON registers and convert to 16-bit
+    uint8_t Cb[IMAGE_ROW_SIZE][IMAGE_COL_SIZE];
+    uint8_t Cr[IMAGE_ROW_SIZE][IMAGE_COL_SIZE];
     int16x8_t y_values = vmovl_u8(vld1_u8(&Y[row][col]));
-    int16x8_t cb_values = vmovl_u8(vld1_u8(&Cb_temp[row][col]));
-    int16x8_t cr_values = vmovl_u8(vld1_u8(&Cr_temp[row][col]));
+
+    // Upsample chrominance values using NEON bilinear interpolation
+    int16x8_t cb_values = bilinear_upsample_neon(row, col, Cb);
+    int16x8_t cr_values = bilinear_upsample_neon(row, col, Cr);
 
     // Adjust Y, Cb, Cr values with the offsets
     y_values = vsubq_s16(y_values, Y_offset_vec);
@@ -187,10 +199,29 @@ static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
     g_values = vshrq_n_s16(vaddq_s16(g_values, shift_value_vec), K);
     b_values = vshrq_n_s16(vaddq_s16(b_values, shift_value_vec), K);
 
+        // Clamping values between 0 and 255
+    r_values = vmaxq_s16(min_val, vminq_s16(r_values, max_val));
+    g_values = vmaxq_s16(min_val, vminq_s16(g_values, max_val));
+    b_values = vmaxq_s16(min_val, vminq_s16(b_values, max_val));
+
     // Convert 16-bit results back to 8-bit and store them
     vst1_u8(&R[row][col], vmovn_u16(vreinterpretq_u16_s16(r_values)));
     vst1_u8(&G[row][col], vmovn_u16(vreinterpretq_u16_s16(g_values)));
     vst1_u8(&B[row][col], vmovn_u16(vreinterpretq_u16_s16(b_values)));
+}
+    int16x8_t bilinear_upsample_neon(int row, int col, uint8_t chroma[IMAGE_ROW_SIZE][IMAGE_COL_SIZE]) {
+    uint8_t C00 = chroma[row >> 1][col >> 1];
+    uint8_t C01 = chroma[row >> 1][(col >> 1) + 1];
+    uint8_t C10 = chroma[(row >> 1) + 1][col >> 1];
+    uint8_t C111 = chroma[(row >> 1) + 1][(col >> 1) + 1];
+
+    // Calculate bilinear interpolated value using SIMD
+    int16x8_t value = vdupq_n_s16(C00);
+    value = vaddq_s16(value, vmulq_n_s16(vsubq_s16(vdupq_n_s16(C01), value), (col & 1)));
+    value = vaddq_s16(value, vmulq_n_s16(vsubq_s16(vdupq_n_s16(C10), value), (row & 1)));
+    value = vaddq_s16(value, vmulq_n_s16(vsubq_s16(vsubq_s16(vdupq_n_s16(C111), vdupq_n_s16(C01)), vsubq_s16(vdupq_n_s16(C10), vdupq_n_s16(C00))), (row & 1) * (col & 1)));
+
+    return value;
 }
 
 

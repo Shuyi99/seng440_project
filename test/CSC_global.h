@@ -1,14 +1,15 @@
 #include <stdint.h>
 
-#define K 8 // bitwidth
+#define K 10 // bitwidth
 #define UNITY (1 << K)
 #define IMAGE_ROW_SIZE 640
 #define IMAGE_COL_SIZE 480
 
+
 // RGB_to_YCC_ROUTINE
 //     1 for CSC_RGB_to_YCC_brute_force_float()
 //     2 for CSC_RGB_to_YCC_brute_force_int()
-#define RGB_to_YCC_ROUTINE 1
+#define RGB_to_YCC_ROUTINE 2
 
 // YCC_to_RGB_ROUTINE
 //     1 for CSC_YCC_to_RGB_brute_force_float()
