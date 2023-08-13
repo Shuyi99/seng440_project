@@ -20,3 +20,9 @@ Input file of this program: image_input_RGB_640_480_01.data
 Output file of this program: image_output_RGB_640_480_02.data
 
 Check the .data files using GIMP, adjust the image size to: 640*480
+
+## Video Demo link
+
+https://uvic-my.sharepoint.com/:v:/g/personal/shuyiyu_uvic_ca/ETzAP33ZY59PuVS1gIQCYagBirH9bzfqc0an-_Agp1lwwQ?e=MoAYG2
+
+Note you do need a Uvic office account  to access this video. Please contact us if you have trouble accessing this video.
