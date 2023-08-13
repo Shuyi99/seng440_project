@@ -1,6 +1,6 @@
 #include <stdint.h>
 
-#define K 10 // bitwidth
+#define K 8 // bitwidth
 #define UNITY (1 << K)
 #define IMAGE_ROW_SIZE 640
 #define IMAGE_COL_SIZE 480
@@ -40,11 +40,11 @@
 #define C33  18
 
 // YCC-to-RGB coefficients in 8-bit representation
-#define D1 297 //74
-#define D2 408//102
-#define D3 208//52
-#define D4 100 //25
-#define D5 516 //129
+#define D1 74//297 //74
+#define D2 102//408//102
+#define D3 52//208//52
+#define D4 25//100 //25
+#define D5 129//516 //129
 
 /* choose between definition (GLOBAL is defined)      *
  * and declaration (GLOBAL is undefined)              *

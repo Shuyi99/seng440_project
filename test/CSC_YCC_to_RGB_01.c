@@ -157,7 +157,7 @@ int16x8_t bilinear_upsample_neon(int row, int col, uint8_t chroma[IMAGE_ROW_SIZE
 static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
     // Constants for offsets and coefficients
     //   // Upsample Cb and Cr into Cb_temp and Cr_temp
-    //chrominance_array_upsample();
+    chrominance_array_upsample();
 
     int16x8_t Y_offset_vec = vdupq_n_s16(16);
     int16x8_t Chroma_offset_vec = vdupq_n_s16(128);
@@ -166,22 +166,22 @@ static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
     int16x8_t D3_vec = vdupq_n_s16(D3);
     int16x8_t D4_vec = vdupq_n_s16(D4);
     int16x8_t D5_vec = vdupq_n_s16(D5);
-    int16x8_t shift_value_vec = vdupq_n_s16(1 << (K - 1));
+    int16x8_t shift_value_vec = vdupq_n_s16(1 << (K - 3));
     int16x8_t min_val = vdupq_n_s16(0);
     int16x8_t max_val = vdupq_n_s16(255);
 
     // Load 8-bit data into NEON registers and convert to 16-bit
     // int16x8_t y_values = vmovl_u8(vld1_u8(&Y[row][col]));
-    // int16x8_t cb_values = vmovl_u8(vld1_u8(&Cb_temp[row][col]));
-    // int16x8_t cr_values = vmovl_u8(vld1_u8(&Cr_temp[row][col]));
+     int16x8_t cb_values = vmovl_u8(vld1_u8(&Cb_temp[row][col]));
+     int16x8_t cr_values = vmovl_u8(vld1_u8(&Cr_temp[row][col]));
         // Load 8-bit data into NEON registers and convert to 16-bit
-    uint8_t Cb[IMAGE_ROW_SIZE][IMAGE_COL_SIZE];
-    uint8_t Cr[IMAGE_ROW_SIZE][IMAGE_COL_SIZE];
+    //uint8_t Cb[IMAGE_ROW_SIZE][IMAGE_COL_SIZE];
+    //uint8_t Cr[IMAGE_ROW_SIZE][IMAGE_COL_SIZE];
     int16x8_t y_values = vmovl_u8(vld1_u8(&Y[row][col]));
 
     // Upsample chrominance values using NEON bilinear interpolation
-    int16x8_t cb_values = bilinear_upsample_neon(row, col, Cb);
-    int16x8_t cr_values = bilinear_upsample_neon(row, col, Cr);
+    //int16x8_t cb_values = bilinear_upsample_neon(row, col, Cb);
+    //int16x8_t cr_values = bilinear_upsample_neon(row, col, Cr);
 
     // Adjust Y, Cb, Cr values with the offsets
     y_values = vsubq_s16(y_values, Y_offset_vec);
@@ -195,9 +195,9 @@ static void CSC_YCC_to_RGB_brute_force_int(int row, int col) {
     int16x8_t b_values = vaddq_s16(vmulq_s16(y_values, D1_vec), vmulq_s16(cb_values, D5_vec));
 
     // Add the shift value and right shift by K bits to finalize fixed-point arithmetic
-    r_values = vshrq_n_s16(vaddq_s16(r_values, shift_value_vec), K);
-    g_values = vshrq_n_s16(vaddq_s16(g_values, shift_value_vec), K);
-    b_values = vshrq_n_s16(vaddq_s16(b_values, shift_value_vec), K);
+    r_values = vshrq_n_s16(vaddq_s16(r_values, shift_value_vec), K-2);
+    g_values = vshrq_n_s16(vaddq_s16(g_values, shift_value_vec), K-2);
+    b_values = vshrq_n_s16(vaddq_s16(b_values, shift_value_vec), K-2);
 
         // Clamping values between 0 and 255
     r_values = vmaxq_s16(min_val, vminq_s16(r_values, max_val));
@@ -348,8 +348,8 @@ static void chrominance_array_upsample( void) {
 void CSC_YCC_to_RGB( void) {
   int row, col; // indices for row and column
 //
-  for( row=0; row<IMAGE_ROW_SIZE; row+=2) {
-    for( col=0; col<IMAGE_COL_SIZE; col+=2) { 
+  for( row=0; row<IMAGE_ROW_SIZE; row+=1) {
+    for( col=0; col<IMAGE_COL_SIZE; col+=8) { 
       //printf( "\n[row,col] = [%02i,%02i]\n\n", row, col);
       switch (YCC_to_RGB_ROUTINE) {
         case 0:
