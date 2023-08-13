@@ -1028,8 +1028,8 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	mov	w9, #480
                                         ; kill: def $x9 killed $w9
 	mul	x11, x10, x9
-	adrp	x10, _Cb_temp@GOTPAGE
-	ldr	x10, [x10, _Cb_temp@GOTPAGEOFF]
+	adrp	x10, _Y@GOTPAGE
+	ldr	x10, [x10, _Y@GOTPAGEOFF]
 	add	x10, x10, x11
 	ldrsw	x11, [sp, #488]
 	ldr	d0, [x10, x11]
@@ -1045,8 +1045,8 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	str	q0, [x8, #160]
 	ldrsw	x10, [sp, #492]
 	mul	x11, x10, x9
-	adrp	x10, _Cr_temp@GOTPAGE
-	ldr	x10, [x10, _Cr_temp@GOTPAGEOFF]
+	adrp	x10, _Cb_temp@GOTPAGE
+	ldr	x10, [x10, _Cb_temp@GOTPAGEOFF]
 	add	x10, x10, x11
 	ldrsw	x11, [sp, #488]
 	ldr	d0, [x10, x11]
@@ -1062,8 +1062,8 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	str	q0, [x8, #128]
 	ldrsw	x10, [sp, #492]
 	mul	x11, x10, x9
-	adrp	x10, _Y@GOTPAGE
-	ldr	x10, [x10, _Y@GOTPAGEOFF]
+	adrp	x10, _Cr_temp@GOTPAGE
+	ldr	x10, [x10, _Cr_temp@GOTPAGEOFF]
 	add	x10, x10, x11
 	ldrsw	x11, [sp, #488]
 	ldr	d0, [x10, x11]
@@ -1077,7 +1077,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	str	q0, [x8, #1312]
 	ldr	q0, [x8, #1312]
 	str	q0, [x8, #96]
-	ldr	q1, [x8, #96]
+	ldr	q1, [x8, #160]
 	ldr	q0, [x8, #320]
 	str	q1, [x8, #1296]
 	str	q0, [x8, #1280]
@@ -1086,8 +1086,8 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	sub.8h	v0, v0, v1
 	str	q0, [x8, #1264]
 	ldr	q0, [x8, #1264]
-	str	q0, [x8, #96]
-	ldr	q1, [x8, #160]
+	str	q0, [x8, #160]
+	ldr	q1, [x8, #128]
 	ldr	q0, [x8, #304]
 	str	q1, [x8, #1248]
 	str	q0, [x8, #1232]
@@ -1096,8 +1096,8 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	sub.8h	v0, v0, v1
 	str	q0, [x8, #1216]
 	ldr	q0, [x8, #1216]
-	str	q0, [x8, #160]
-	ldr	q1, [x8, #128]
+	str	q0, [x8, #128]
+	ldr	q1, [x8, #96]
 	ldr	q0, [x8, #304]
 	str	q1, [x8, #1200]
 	str	q0, [x8, #1184]
@@ -1106,8 +1106,8 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	sub.8h	v0, v0, v1
 	str	q0, [x8, #1168]
 	ldr	q0, [x8, #1168]
-	str	q0, [x8, #128]
-	ldr	q1, [x8, #96]
+	str	q0, [x8, #96]
+	ldr	q1, [x8, #160]
 	ldr	q0, [x8, #288]
 	str	q1, [x8, #1728]
 	str	q0, [x8, #1712]
@@ -1116,7 +1116,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	mul.8h	v0, v0, v1
 	str	q0, [x8, #1696]
 	ldr	q1, [x8, #1696]
-	ldr	q2, [x8, #128]
+	ldr	q2, [x8, #96]
 	ldr	q0, [x8, #272]
 	str	q2, [x8, #1680]
 	str	q0, [x8, #1664]
@@ -1133,7 +1133,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	str	q0, [x8, #1024]
 	ldr	q0, [x8, #1024]
 	str	q0, [x8, #64]
-	ldr	q1, [x8, #96]
+	ldr	q1, [x8, #160]
 	ldr	q0, [x8, #288]
 	str	q1, [x8, #1632]
 	str	q0, [x8, #1616]
@@ -1142,7 +1142,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	mul.8h	v0, v0, v1
 	str	q0, [x8, #1600]
 	ldr	q1, [x8, #1600]
-	ldr	q2, [x8, #128]
+	ldr	q2, [x8, #96]
 	ldr	q0, [x8, #256]
 	str	q2, [x8, #1584]
 	str	q0, [x8, #1568]
@@ -1158,7 +1158,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	sub.8h	v0, v0, v1
 	str	q0, [x8, #1120]
 	ldr	q1, [x8, #1120]
-	ldr	q2, [x8, #160]
+	ldr	q2, [x8, #128]
 	ldr	q0, [x8, #240]
 	str	q2, [x8, #1536]
 	str	q0, [x8, #1520]
@@ -1175,7 +1175,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	str	q0, [x8, #1072]
 	ldr	q0, [x8, #1072]
 	str	q0, [x8, #48]
-	ldr	q1, [x8, #96]
+	ldr	q1, [x8, #160]
 	ldr	q0, [x8, #288]
 	str	q1, [x8, #1488]
 	str	q0, [x8, #1472]
@@ -1184,7 +1184,7 @@ _CSC_YCC_to_RGB_brute_force_int:        ; @CSC_YCC_to_RGB_brute_force_int
 	mul.8h	v0, v0, v1
 	str	q0, [x8, #1456]
 	ldr	q1, [x8, #1456]
-	ldr	q2, [x8, #160]
+	ldr	q2, [x8, #128]
 	ldr	q0, [x8, #224]
 	str	q2, [x8, #1440]
 	str	q0, [x8, #1424]
