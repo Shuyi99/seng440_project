@@ -10,4 +10,10 @@ The aim of this project is to improve the efficiency of the existing color space
 
 ## To run this:
 this project is designed to compile and run on arm system. the physical machine this project was running on is an ARM MAC computer. 
-to generate assembly code, use command: 
+to generate assembly code, use command: gcc -S CSC_main.c CSC_RGB_to_YCC_01.c CSC_YCC_to_RGB_01.c 
+to compile this program, use command: gcc CSC_main.c CSC_RGB_to_YCC_01.c CSC_YCC_to_RGB_01.c -o CSC.out
+
+input file of this program: image_input_RGB_640_480_01.data
+output file of this program: image_output_RGB_640_480_02.data
+
+check the files using GIMP, adjust the image size to: 640*480
