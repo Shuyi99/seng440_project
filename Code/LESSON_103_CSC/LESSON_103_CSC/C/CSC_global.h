@@ -38,12 +38,19 @@
 #define C32  94
 #define C33  18
 
-// YCC-to-RGB coefficients in 8-bit representation
+//YCC-to-RGB coefficients in 8-bit representation
 #define D1 297 //74
 #define D2 408//102
 #define D3 208//52
 #define D4 100 //25
 #define D5 516 //129
+
+// #define D1 74 
+// #define D2 102
+// #define D3 52
+// #define D4 25 
+// #define D5 129
+
 
 /* choose between definition (GLOBAL is defined)      *
  * and declaration (GLOBAL is undefined)              *
