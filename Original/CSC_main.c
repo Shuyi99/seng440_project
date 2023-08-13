@@ -22,7 +22,7 @@ int main( void) {
   FILE *f_ID_output_Cr;
   FILE *f_ID_output_RGB;
 
-  f_ID_input_RGB = fopen( "./image_input_RGB_64_48_03.data", "rb");
+  f_ID_input_RGB = fopen( "./image_input_RGB_640_480_01.data", "rb");
   if( f_ID_input_RGB == NULL) {
     printf( "Cannot open file.\n");
     return( 1);
@@ -118,6 +118,10 @@ int main( void) {
     fputc( B[row][col], f_ID_output_RGB);
   }
   fclose( f_ID_output_RGB);
-
+  end_time = clock();
+  time_used = ((double)end_time - start_time)/CLOCKS_PER_SEC;
+  printf("Total running time: %f seconds\n", time_used);
 } // END of main()
+
+
 
