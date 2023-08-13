@@ -8,3 +8,6 @@ Welcome to out SENG440 Embedded Systems Final project. This repository contains 
 
 The aim of this project is to improve the efficiency of the existing color space conversion code. This might involve refining the algorithms used, optimizing resource usage, or implementing more efficient data structures. The goal is not only to make the conversions faster, but also to ensure they are accurate and reliable.
 
+## To run this:
+this project is designed to compile and run on arm system. the physical machine this project was running on is an ARM MAC computer. 
+to generate assembly code, use command: 
